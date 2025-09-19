@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Sweet
+from .models import Sweet, Order
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -19,4 +19,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class SweetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sweet
-        fields = ['id','name','category','price','quantity','created_at']
+        fields = '__all__'
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = '__all__'
