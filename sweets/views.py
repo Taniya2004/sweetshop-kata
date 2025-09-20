@@ -6,8 +6,9 @@ from rest_framework.views import APIView
 from django.contrib.auth.models import User
 
 from .models import Sweet, Order
-from .serializers import SweetSerializer, UserRegisterSerializer, OrderSerializer
+from .serializers import SweetSerializer, UserRegisterSerializer, OrderSerializer, CustomTokenObtainPairSerializer
 from rest_framework.generics import CreateAPIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 # Register new users
@@ -119,3 +120,7 @@ class OrderViewSet(viewsets.ModelViewSet):
             order.sweets.set(Sweet.objects.filter(id__in=sweet_ids))
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
