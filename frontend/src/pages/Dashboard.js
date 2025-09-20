@@ -66,11 +66,12 @@ function Dashboard({ onLogout, cart, setCart, isAdmin }) {
     e.preventDefault();
     try {
       const res = await API.post("/sweets/", newSweet);
-      alert("✅ Sweet added successfully!");
+      const addedSweet = res.data;
       
       setNewSweet({ name: "", category: "", price: "", quantity: "" });
       setFilters({ name: "", category: "", price_min: "", price_max: "" });
       
+      alert("✅ Sweet added successfully!");
       handleSearch();
     } catch (err) {
       console.error("❌ Add Sweet Error:", err.response?.data || err.message);

@@ -50,3 +50,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         # Extra fields add karo
         token['is_admin'] = user.is_staff  # ya user.is_superuser
         return token
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
