@@ -7,26 +7,34 @@ import Cart from "./pages/Cart";
 
 function App() {
   const [auth, setAuth] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [cart, setCart] = useState([]);
 
-  // ✅ Jab app load hoga -> token check karo
+  // ✅ Jab app load hoga -> token & isAdmin check karo
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const adminFlag = localStorage.getItem("isAdmin") === "true";
     if (token) {
       setAuth(true);
+      setIsAdmin(adminFlag);
     }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("isAdmin");
     setAuth(false);
+    setIsAdmin(false);
   };
 
   return (
     <BrowserRouter>
       <Routes>
         {/* 🔓 Public routes */}
-        <Route path="/login" element={<Login setAuth={setAuth} />} />
+        <Route
+          path="/login"
+          element={<Login setAuth={setAuth} setIsAdmin={setIsAdmin} />}
+        />
         <Route path="/register" element={<Register />} />
 
         {/* 🏠 Default route handling */}
@@ -39,6 +47,7 @@ function App() {
                   onLogout={handleLogout}
                   cart={cart}
                   setCart={setCart}
+                  isAdmin={isAdmin}
                 />
               }
             />
@@ -46,6 +55,7 @@ function App() {
               path="/cart"
               element={<Cart cart={cart} setCart={setCart} />}
             />
+
             {/* Agar logged in hai aur /login ya /register pe gaya to dashboard pe bhej do */}
             <Route path="/login" element={<Navigate to="/" replace />} />
             <Route path="/register" element={<Navigate to="/" replace />} />

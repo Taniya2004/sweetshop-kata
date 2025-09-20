@@ -1,27 +1,37 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import API from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";  // ✅ named import for v4+
 
-function Login({ setAuth }) {
+function Login({ setAuth, setIsAdmin }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // ✅ form submit stop
+    e.preventDefault();
     try {
       const res = await API.post("/auth/login/", {
-        username: username,
-        password: password,
+        username,
+        password,
       });
 
       if (res.data && res.data.access) {
+        // ✅ Save token
         localStorage.setItem("token", res.data.access);
+
+        // ✅ Decode token for admin check
+        const decoded = jwtDecode(res.data.access);
+        const isAdmin = decoded.is_admin || false;
+
+        localStorage.setItem("isAdmin", isAdmin);
+        setIsAdmin(isAdmin);
+
         setAuth(true);
         alert("✅ Login successful!");
-        navigate("/"); // dashboard
+        navigate("/"); // go to Dashboard
       } else {
-        alert("❌ Login failed! No access token received.");
+        alert("❌ Login failed! No token.");
       }
     } catch (err) {
       console.error("Login Error:", err.response?.data || err.message);
@@ -41,7 +51,6 @@ function Login({ setAuth }) {
         </h1>
         <h2 className="text-2xl font-semibold mb-6 text-center">Login</h2>
 
-        {/* ✅ only form submit */}
         <form onSubmit={handleLogin}>
           <input
             type="text"
@@ -64,9 +73,14 @@ function Login({ setAuth }) {
             Login
           </button>
         </form>
+
+        {/* 🔗 Register link */}
         <p className="mt-4 text-center">
           Don’t have an account?{" "}
-          <a href="/register" className="text-pink-600 font-semibold hover:underline">
+          <a
+            href="/register"
+            className="text-pink-600 font-semibold hover:underline"
+          >
             Register here
           </a>
         </p>

@@ -17,3 +17,6 @@ API.interceptors.request.use(
 );
 
 export default API;
+export const searchSweets = async (params) => {
+  return API.get("/sweets/search/", { params });
+};
