@@ -8,19 +8,37 @@ function Cart({ cart, setCart }) {
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   const placeOrder = async () => {
+    // Validation
+    if (cart.length === 0) {
+      alert("Your cart is empty!");
+      return;
+    }
+    if (!address.trim()) {
+      alert("Please enter your address!");
+      return;
+    }
+    if (!phone.trim()) {
+      alert("Please enter your phone number!");
+      return;
+    }
+
     try {
       const payload = {
         items: cart,
         total_price: total,
-        address,
-        phone,
+        address: address.trim(),
+        phone: phone.trim(),
       };
       await API.post("/orders/", payload);
       alert("Order placed successfully!");
       setCart([]); // empty cart
     } catch (err) {
       console.error("Order Error:", err.response?.data || err.message);
-      alert("Failed to place order");
+      alert(
+        err.response?.data?.detail
+          ? `Failed to place order: ${err.response.data.detail}`
+          : "Failed to place order"
+      );
     }
   };
 

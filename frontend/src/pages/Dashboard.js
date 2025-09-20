@@ -6,12 +6,16 @@ function Dashboard({ onLogout, cart, setCart }) {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
 
+  // ✅ Fetch sweets from API
   const fetchSweets = async () => {
     try {
+      console.log("🔑 Using token:", localStorage.getItem("token")); // Debug
       const res = await API.get("/sweets/");
+      console.log("✅ Sweets Response:", res.data);
       setSweets(res.data);
+      setError(null);
     } catch (err) {
-      console.error("Fetch Error:", err.response?.data || err.message);
+      console.error("❌ Fetch Error:", err.response?.data || err.message);
       setError(err.response?.data?.detail || "Failed to load sweets");
     }
   };

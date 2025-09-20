@@ -90,4 +90,28 @@ class OrderViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user) 
+        serializer.save(user=self.request.user)
+
+    def create(self, request, *args, **kwargs):
+        # Handle custom order creation with sweets
+        data = request.data.copy()
+        sweets_data = data.pop('items', [])
+
+        # Create order without sweets first
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save(user=request.user)
+
+        # Add sweets to the order
+        sweet_ids = []
+        for item in sweets_data:
+            try:
+                sweet = Sweet.objects.get(id=item.get('id'))
+                sweet_ids.append(sweet.id)
+            except (Sweet.DoesNotExist, ValueError):
+                continue
+
+        if sweet_ids:
+            order.sweets.set(Sweet.objects.filter(id__in=sweet_ids))
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

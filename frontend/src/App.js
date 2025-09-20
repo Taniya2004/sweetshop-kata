@@ -5,12 +5,12 @@ import Dashboard from "./pages/Dashboard";
 import Cart from "./pages/Cart"
 
 function App() {
-  const [auth, setAuth] = useState(!!localStorage.getItem("token"));
+const [auth, setAuth] = useState(!!localStorage.getItem("token"));
   const [cart, setCart] = useState([]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); 
-    setAuth(false);                  
+    localStorage.removeItem("token");
+    setAuth(false);
   };
 
   return (
@@ -20,7 +20,7 @@ function App() {
           <Route path="/" element={<Login setAuth={setAuth} />} />
         ) : (
           <>
-            <Route path="/" element={<Dashboard onLogout={() => setAuth(false)} cart={cart} setCart={setCart} />} />
+            <Route path="/" element={<Dashboard onLogout={handleLogout} cart={cart} setCart={setCart} />} />
             <Route path="/cart" element={<Cart cart={cart} setCart={setCart} />} />        
           </>
         )}
