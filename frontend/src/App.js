@@ -9,15 +9,18 @@ function App() {
   const [auth, setAuth] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true); // ✅ new
 
   // ✅ Jab app load hoga -> token & isAdmin check karo
   useEffect(() => {
     const token = localStorage.getItem("token");
     const adminFlag = localStorage.getItem("isAdmin") === "true";
+    console.log("🔑 App mounted, token:", token);
     if (token) {
       setAuth(true);
       setIsAdmin(adminFlag);
     }
+    setLoading(false); // ✅ auth check complete
   }, []);
 
   const handleLogout = () => {
@@ -26,6 +29,8 @@ function App() {
     setAuth(false);
     setIsAdmin(false);
   };
+
+  if (loading) return <div className="p-10 text-center">⏳ Checking session...</div>;
 
   return (
     <BrowserRouter>
@@ -68,7 +73,10 @@ function App() {
         )}
 
         {/* Fallback unknown route */}
-        <Route path="*" element={<Navigate to={auth ? "/" : "/login"} replace />} />
+        <Route
+          path="*"
+          element={<Navigate to={auth ? "/" : "/login"} replace />}
+        />
       </Routes>
     </BrowserRouter>
   );

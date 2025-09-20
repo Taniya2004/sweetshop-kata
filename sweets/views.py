@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status, filters
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -7,11 +7,10 @@ from django.contrib.auth.models import User
 
 from .models import Sweet, Order
 from .serializers import SweetSerializer, UserRegisterSerializer, OrderSerializer, CustomTokenObtainPairSerializer
-from rest_framework.generics import CreateAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
-# Register new users
+# ---------------------- Register ----------------------
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
@@ -20,53 +19,32 @@ class RegisterView(APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response(
-            {'id': user.id, 'username': user.username},
+            {"id": user.id, "username": user.username},
             status=status.HTTP_201_CREATED
         )
 
 
-# Sweets API
+# ---------------------- Sweets ----------------------
 class SweetViewSet(viewsets.ModelViewSet):
-    queryset = Sweet.objects.all().order_by('-created_at')
+    queryset = Sweet.objects.all().order_by("-created_at")
     serializer_class = SweetSerializer
 
     def get_permissions(self):
-        # Admin-only for create/update/delete/restock
-        if self.action in ['create', 'update', 'partial_update', 'destroy', 'restock']:
+        if self.action in ["create", "update", "partial_update", "destroy", "restock"]:
             return [IsAdminUser()]
-        # Authenticated for list/retrieve/purchase/search
-        if self.action in ['list', 'retrieve', 'search']:
-            return [AllowAny()]   # koi bhi sweets dekh/ search kar sakta hai
-        if self.action in ['purchase']:
-            return [IsAuthenticated()]  # purchase ke liye login zaroori
+        if self.action in ["list", "retrieve", "search"]:
+            return [AllowAny()]
+        if self.action in ["purchase"]:
+            return [IsAuthenticated()]
         return super().get_permissions()
 
-    
-    # ✅ Create override
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    # ✅ Update override
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-    # Search sweets
-    @action(detail=False, methods=['get'], url_path='search')
+    @action(detail=False, methods=["get"], url_path="search")
     def search(self, request):
         qs = self.queryset
-        name = request.query_params.get('name')
-        category = request.query_params.get('category')
-        price_min = request.query_params.get('price_min')
-        price_max = request.query_params.get('price_max')
+        name = request.query_params.get("name")
+        category = request.query_params.get("category")
+        price_min = request.query_params.get("price_min")
+        price_max = request.query_params.get("price_max")
 
         if name:
             qs = qs.filter(name__icontains=name)
@@ -80,67 +58,40 @@ class SweetViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(qs, many=True)
         return Response(serializer.data)
 
-    # Purchase sweets
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def purchase(self, request, pk=None):
         sweet = self.get_object()
-        qty = int(request.data.get('quantity', 1))
+        qty = int(request.data.get("quantity", 1))
         if qty <= 0:
-            return Response({'detail': 'Quantity must be >=1'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Quantity must be >=1"}, status=status.HTTP_400_BAD_REQUEST)
         if sweet.quantity < qty:
-            return Response({'detail': 'Not enough stock'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Not enough stock"}, status=status.HTTP_400_BAD_REQUEST)
         sweet.quantity -= qty
         sweet.save()
-        return Response({'detail': 'Purchase successful', 'remaining': sweet.quantity})
+        return Response({"detail": "Purchase successful", "remaining": sweet.quantity})
 
-    # Restock sweets (Admin only)
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=["post"])
     def restock(self, request, pk=None):
         sweet = self.get_object()
-        qty = int(request.data.get('quantity', 1))
+        qty = int(request.data.get("quantity", 1))
         if qty <= 0:
-            return Response({'detail': 'Quantity must be >=1'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Quantity must be >=1"}, status=status.HTTP_400_BAD_REQUEST)
         sweet.quantity += qty
         sweet.save()
-        return Response({'detail': 'Restocked', 'quantity': sweet.quantity})
+        return Response({"detail": "Restocked", "quantity": sweet.quantity})
 
 
-# Orders API (Cart + Checkout)
+# ---------------------- Orders ----------------------
 class OrderViewSet(viewsets.ModelViewSet):
-    queryset = Order.objects.all().order_by('-created_at')
+    queryset = Order.objects.all().order_by("-created_at")
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
     def perform_create(self, serializer):
+        # ✅ items frontend se aa rahe hain serializer.handle karega
         serializer.save(user=self.request.user)
 
-    def create(self, request, *args, **kwargs):
-        # Handle custom order creation with sweets
-        data = request.data.copy()
-        sweets_data = data.pop('items', [])
 
-        # Create order without sweets first
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        
-        self.perform_create(serializer)
-
-        order = serializer.save(user=request.user)
-
-        # Add sweets to the order
-        sweet_ids = []
-        for item in sweets_data:
-            try:
-                sweet = Sweet.objects.get(id=item.get('id'))
-                sweet_ids.append(sweet.id)
-            except (Sweet.DoesNotExist, ValueError):
-                continue
-
-        if sweet_ids:
-            order.sweets.set(Sweet.objects.filter(id__in=sweet_ids))
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
+# ---------------------- JWT ----------------------
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
