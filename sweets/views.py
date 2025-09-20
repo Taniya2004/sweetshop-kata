@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 
 from .models import Sweet, Order
 from .serializers import SweetSerializer, UserRegisterSerializer, OrderSerializer
+from rest_framework.generics import CreateAPIView
 
 
 # Register new users
