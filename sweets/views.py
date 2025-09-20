@@ -101,6 +101,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         # Create order without sweets first
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
+        
+        self.perform_create(serializer)
+
         order = serializer.save(user=request.user)
 
         # Add sweets to the order

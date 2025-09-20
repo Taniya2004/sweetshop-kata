@@ -65,9 +65,12 @@ function Dashboard({ onLogout, cart, setCart, isAdmin }) {
   const handleAddSweet = async (e) => {
     e.preventDefault();
     try {
-      await API.post("/sweets/", newSweet);
+      const res = await API.post("/sweets/", newSweet);
       alert("✅ Sweet added successfully!");
+      
       setNewSweet({ name: "", category: "", price: "", quantity: "" });
+      setFilters({ name: "", category: "", price_min: "", price_max: "" });
+      
       handleSearch();
     } catch (err) {
       console.error("❌ Add Sweet Error:", err.response?.data || err.message);
@@ -108,10 +111,12 @@ function Dashboard({ onLogout, cart, setCart, isAdmin }) {
   // ✅ Admin: Save Edit
   const handleUpdate = async (id) => {
     try {
-      await API.put(`/sweets/${id}/`, editSweet);
+      const res = await API.put(`/sweets/${id}/`, editSweet);
       alert("✏️ Sweet updated!");
       setEditingId(null);
-      handleSearch();
+
+      // update local state immediately
+      setSweets(sweets.map((s) => (s.id === id ? res.data : s)));
     } catch (err) {
       console.error("❌ Update Error:", err.response?.data || err.message);
       alert("Failed to update sweet");

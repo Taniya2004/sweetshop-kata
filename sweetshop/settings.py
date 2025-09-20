@@ -148,7 +148,7 @@ REST_FRAMEWORK = {
     ),
     # default permission can be IsAuthenticated; we'll override on register/login views
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ),
 }
 
