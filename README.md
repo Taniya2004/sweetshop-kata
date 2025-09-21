@@ -137,7 +137,7 @@ This project was built as part of an **AI Kata assignment**, showcasing human + 
 ## 🖼 Screenshots
 
 ### 🏠 Home Page  
-![Home Screenshot](frontend/public/images/home.png?raw=true)
+![Home Screenshot](frontend/public/images/home_page.png?raw=true)
 
 ### 📝 Registration Page
 ![Registration Screenshot](frontend/public/images/registration.png?raw=true)
