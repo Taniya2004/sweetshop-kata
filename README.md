@@ -134,6 +134,26 @@ This project was built as part of an **AI Kata assignment**, showcasing human + 
 
 ---
 
+## 🖼 Screenshots
+
+### 🏠 Home Page  
+![Home Screenshot](images/home.png)
+
+### 📝 Registration Page  
+![Registration Screenshot](images/registration.png)
+
+### 🔐 Login Page  
+![Login Screenshot](images/login.png)
+
+### 👤 Dashboard  
+![Dashboard Screenshot](images/dashboard.png)
+
+### 🛒 Cart Page  
+![Cart Screenshot](images/cart.png)
+
+### 📦 Placing Order  
+![Placing Order Screenshot](images/placing_order.png)
+
 ## 💻 Development
 
 ### Running Both Servers
