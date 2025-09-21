@@ -137,22 +137,22 @@ This project was built as part of an **AI Kata assignment**, showcasing human + 
 ## 🖼 Screenshots
 
 ### 🏠 Home Page  
-![Home Screenshot](images/home.png)
+![Home Screenshot](frontend/public/images/home.png?raw=true)
 
-### 📝 Registration Page  
-![Registration Screenshot](images/registration.png)
+### 📝 Registration Page
+![Registration Screenshot](frontend/public/images/registration.png?raw=true)
 
-### 🔐 Login Page  
-![Login Screenshot](images/login.png)
+### 🔐 Login Page
+![Login Screenshot](frontend/public/images/login.png?raw=true)
 
-### 👤 Dashboard  
-![Dashboard Screenshot](images/dashboard.png)
+### 👤 Dashboard
+![Dashboard Screenshot](frontend/public/images/dashboard.png?raw=true)
 
-### 🛒 Cart Page  
-![Cart Screenshot](images/cart.png)
+### 🛒 Cart Page
+![Cart Screenshot](frontend/public/images/cart.png?raw=true)
 
-### 📦 Placing Order  
-![Placing Order Screenshot](images/placing_order.png)
+### 📦 Placing Order
+![Placing Order Screenshot](frontend/public/images/placing_order.png?raw=true)
 
 ## 💻 Development
 
